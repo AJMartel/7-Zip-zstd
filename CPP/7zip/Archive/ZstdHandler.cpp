@@ -17,8 +17,6 @@
 #include "Common/DummyOutStream.h"
 #include "Common/HandlerOut.h"
 
-#include <stdio.h>
-
 using namespace NWindows;
 
 namespace NArchive {
@@ -107,11 +105,21 @@ API_FUNC_static_IsArc IsArc_zstd(const Byte *p, size_t size)
   if (size < 4)
     return k_IsArc_Res_NEED_MORE;
 
-  // 0xFD2FB525 = 0.5
-  // ..
-  // 0xFD2FB528 = 0.8
   UInt32 magic = GetUi32(p);
-  if (magic >= 0xFD2FB525 && magic <= 0xFD2FB528)
+
+  // skippable frames
+  if (magic >= 0x184D2A50 && magic <= 0x184D2A5F) {
+    if (size < 16)
+      return k_IsArc_Res_NEED_MORE;
+    magic = GetUi32(p+12);
+  }
+
+  // zstd 0.1
+  if (magic == 0xFD2FB51E)
+    return k_IsArc_Res_YES;
+
+  // zstd magic's for 0.2 .. 0.8 (aka 1.x)
+  if (magic >= 0xFD2FB522 && magic <= 0xFD2FB528)
     return k_IsArc_Res_YES;
 
   return k_IsArc_Res_NO;
@@ -215,10 +223,6 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     RINOK(lps->SetCur());
     result = decoderSpec->CodeResume(outStream, &unpackedSize, progress);
     UInt64 streamSize = decoderSpec->GetInputProcessedSize();
-
-    printf("streamsize=%d packsize=%d unpackedSize=%d\n",
-      streamSize, packSize, unpackedSize);
-    fflush(stdout);
 
     if (result != S_FALSE && result != S_OK)
       return result;
@@ -355,7 +359,7 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
   return _props.SetProperties(names, values, numProps);
 }
 
-static const Byte k_Signature[] = "0xFD2FB525..0xFD2FB528";
+static const Byte k_Signature[] = "0xFD2FB522..0xFD2FB528";
 
 REGISTER_ARC_IO(
   "zstd", "zst tzstd", "* .tar", 0x0e,

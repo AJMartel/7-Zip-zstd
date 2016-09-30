@@ -142,4 +142,9 @@ ZSTD_OBJS = $(ZSTD_OBJS) \
   $O\huf_compress.obj \
   $O\zstd_compress.obj \
 
+ZSTDMT_OBJS = $(ZSTDMT_OBJS) \
+  $O\lz4mt_compress.obj \
+  $O\lz5mt_compress.obj \
+  $O\zstdmt_compress.obj \
+
 !include "../../7zip.mak"

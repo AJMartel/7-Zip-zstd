@@ -41,6 +41,7 @@ WIN_OBJS = \
   $O\PropVariant.obj \
   $O\PropVariantConv.obj \
   $O\Synchronization.obj \
+  $O\System.obj \
 
 7ZIP_COMMON_OBJS = \
   $O\CreateCoder.obj \

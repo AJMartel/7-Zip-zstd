@@ -40,6 +40,7 @@ WIN_OBJS = \
   $O\PropVariantConv.obj \
   $O\ResourceString.obj \
   $O\Shell.obj \
+  $O\System.obj \
   $O\Synchronization.obj \
   $O\Window.obj \
 

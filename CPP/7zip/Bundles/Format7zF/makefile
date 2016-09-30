@@ -16,14 +16,22 @@ AR_OBJS = $(AR_OBJS) \
   $O\ArchiveExports.obj \
   $O\DllExports2.obj \
 
-
 !include "../../zstd.mak"
 ZSTD_OBJS = $(ZSTD_OBJS) \
   $O\fse_compress.obj \
   $O\huf_compress.obj \
   $O\zstd_compress.obj \
+  $O\zstd_v01.obj \
+  $O\zstd_v02.obj \
+  $O\zstd_v03.obj \
+  $O\zstd_v04.obj \
   $O\zstd_v05.obj \
   $O\zstd_v06.obj \
   $O\zstd_v07.obj \
+
+ZSTDMT_OBJS = $(ZSTDMT_OBJS) \
+  $O\lz4mt_compress.obj \
+  $O\lz5mt_compress.obj \
+  $O\zstdmt_compress.obj \
 
 !include "../../7zip.mak"

@@ -3,8 +3,9 @@
 
 #define ZSTD_STATIC_LINKING_ONLY
 #include "../../../C/Alloc.h"
-#include "../../../C/ZStd/zstd.h"
-#include "../../../C/ZStd/zstdmt.h"
+#include "../../../C/Threads.h"
+#include "../../../C/zstd/zstd.h"
+#include "../../../C/zstdmt/zstdmt.h"
 
 #include "../../Common/Common.h"
 #include "../../Common/MyCom.h"
@@ -39,14 +40,12 @@ class CEncoder:
   public CMyUnknownImp
 {
   CProps _props;
+  CCriticalSection cs;
 
   UInt64 _processedIn;
   UInt64 _processedOut;
   UInt32 _inputSize;
   UInt32 _numThreads;
-
-  int MyRead(void *arg, ZSTDMT_Buffer * in);
-  int MyWrite(void *arg, ZSTDMT_Buffer * out);
 
   HRESULT CEncoder::ErrorOut(size_t code);
 
