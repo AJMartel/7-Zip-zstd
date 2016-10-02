@@ -1,11 +1,8 @@
-// ZstdDecoder.h
 // (C) 2016 Tino Reichardt
 
 /**
- * you can define ZSTD_LEGACY_SUPPORT to be backwards compatible
- * with these versions: 0.5, 0.6, 0.7, 0.8 (0.8 == 1.0)
- *
- * /TR 2016-09-04
+ * you can define ZSTD_LEGACY_SUPPORT to be backwards compatible (0.1 .. 0.8)
+ * /TR 2016-10-01
  */
 
 #define ZSTD_STATIC_LINKING_ONLY

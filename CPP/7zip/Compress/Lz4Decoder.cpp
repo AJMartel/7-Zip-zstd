@@ -25,13 +25,25 @@ int Lz4Read(void *arg, LZ4MT_Buffer * in)
 int Lz4Write(void *arg, LZ4MT_Buffer * out)
 {
   struct Lz4Stream *x = (struct Lz4Stream*)arg;
+  UInt32 todo = (UInt32)out->size;
+  UInt32 done = 0;
 
-  HRESULT res = WriteStream(x->outStream, out->buf, out->size);
-  if (res != S_OK)
-    return -1;
+  while (todo != 0)
+  {
+    UInt32 block;
+    HRESULT res = x->outStream->Write((char*)out->buf + done, todo, &block);
+    done += block;
+    if (res == k_My_HRESULT_WritingWasCut)
+      break;
+    if (res != S_OK)
+      return -1;
+    if (block == 0)
+      return E_FAIL;
+    todo -= block;
+  }
 
   CriticalSection_Enter(x->cs);
-  *x->processedOut += out->size;
+  *x->processedOut += done;
   x->progress->SetRatioInfo(x->processedIn, x->processedOut);
   CriticalSection_Leave(x->cs);
 
@@ -93,8 +105,9 @@ HRESULT CDecoder::ErrorOut(size_t code)
   return E_FAIL;
 }
 
-HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * /*outSize*/)
+HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * outSize)
 {
+  printf("%s: %d\n", __FUNCTION__, (int)outSize);
   _processedOut = 0;
 
   return S_OK;
@@ -103,6 +116,7 @@ HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * /*outSize*/)
 STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 * outSize)
 {
   _processedIn = 0;
+  printf("%s: %d\n", __FUNCTION__, (int)outSize);
   RINOK(SetOutStreamSizeResume(outSize));
 
   return S_OK;

@@ -61,6 +61,7 @@ class CDecoder:public ICompressCoder,
 
   UInt64 _processedIn;
   UInt64 _processedOut;
+  UInt64 _OutSize;
   UInt32 _inputSize;
   UInt32 _numThreads;
 

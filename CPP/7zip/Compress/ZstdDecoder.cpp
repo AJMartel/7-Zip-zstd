@@ -26,13 +26,26 @@ int ZstdRead(void *arg, ZSTDMT_Buffer * in)
 int ZstdWrite(void *arg, ZSTDMT_Buffer * out)
 {
   struct ZstdStream *x = (struct ZstdStream*)arg;
+  UInt32 todo = (UInt32)out->size;
+  UInt32 done = 0;
 
-  HRESULT res = WriteStream(x->outStream, out->buf, out->size);
-  if (res != S_OK)
-    return -1;
+  while (todo != 0)
+  {
+    UInt32 block;
+    HRESULT res = x->outStream->Write((char*)out->buf + done, todo, &block);
+    done += block;
+    if (res == k_My_HRESULT_WritingWasCut)
+      break;
+    // printf("write() todo=%d block=%d res=%d\n", todo, block, res);
+    if (res != S_OK)
+      return -1;
+    if (block == 0)
+      return E_FAIL;
+    todo -= block;
+  }
 
   CriticalSection_Enter(x->cs);
-  *x->processedOut += out->size;
+  *x->processedOut += done;
   x->progress->SetRatioInfo(x->processedIn, x->processedOut);
   CriticalSection_Leave(x->cs);
 
@@ -174,6 +187,8 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 /*size*/, UInt32 *processedSize)
 {
   if (processedSize)
     *processedSize = 0;
+
+  MessageBoxW(0, L"read", L"7-Zip ZStandard", MB_ICONERROR | MB_OK);
 
   data = 0;
   return E_FAIL;
