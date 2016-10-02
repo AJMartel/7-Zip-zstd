@@ -131,6 +131,7 @@ class CCompressDialog: public NWindows::NControl::CModalDialog
 
   void SetLevel();
   void SetLevel_zstd();
+  void SetLevel_lz45();
   void SetLevel_default();
   
   void SetMethod(int keepMethodId = -1);
