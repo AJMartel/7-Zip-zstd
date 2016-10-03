@@ -105,9 +105,8 @@ HRESULT CDecoder::ErrorOut(size_t code)
   return E_FAIL;
 }
 
-HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * outSize)
+HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * /*outSize*/)
 {
-  printf("%s: %d\n", __FUNCTION__, (int)outSize);
   _processedOut = 0;
 
   return S_OK;
@@ -116,7 +115,6 @@ HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * outSize)
 STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 * outSize)
 {
   _processedIn = 0;
-  printf("%s: %d\n", __FUNCTION__, (int)outSize);
   RINOK(SetOutStreamSizeResume(outSize));
 
   return S_OK;
