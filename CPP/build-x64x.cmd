@@ -14,6 +14,7 @@ copy AMD64\7za.dll %OUTDIR%\7za.dll
 cd %ROOT%\Bundles\Format7zF
 nmake %OPTS%
 copy AMD64\7z.dll %OUTDIR%\7z.dll
+goto ende
 
 cd %ROOT%\UI\FileManager
 nmake %OPTS%

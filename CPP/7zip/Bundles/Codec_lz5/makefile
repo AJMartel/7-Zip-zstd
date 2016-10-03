@@ -25,6 +25,7 @@ LZ5_OBJS = \
   $O\lz5.obj \
   $O\lz5frame.obj \
   $O\lz5hc.obj \
+  $O\lz5xxhash.obj \
 
 ZSTDMT_OBJS = \
   $O\lz5mt_common.obj \

@@ -117,7 +117,7 @@ static const LPCWSTR kMethodsNames[] =
   L"Copy",
   L"ZSTD",
   L"LZ4",
-  L"LZ4",
+  L"LZ5",
   L"LZMA",
   L"LZMA2",
   L"PPMd",
@@ -1814,38 +1814,6 @@ UInt64 CCompressDialog::GetMemoryUsage(UInt32 dict, UInt64 &decompressMemory)
     {
       decompressMemory = dict + (2 << 20);
       return size + decompressMemory;
-    }
-
-    case kZSTD:
-    {
-      /* Code Snippet for CPP/7zip/UI/GUI/CompressDialog.cpp with blocklen=131075 */
-      size = 0;
-      switch (level) {
-        case 1: size = 824228; decompressMemory = 415024; return size;
-        case 2: size = 1282980; decompressMemory = 415024; return size;
-        case 3: size = 922532; decompressMemory = 415024; return size;
-        case 4: size = 1414052; decompressMemory = 415024; return size;
-        case 5: size = 1545124; decompressMemory = 415024; return size;
-        case 6: size = 1807268; decompressMemory = 415024; return size;
-        case 7: size = 1807268; decompressMemory = 415024; return size;
-        case 8: size = 1807268; decompressMemory = 415024; return size;
-        case 9: size = 1807268; decompressMemory = 415024; return size;
-        case 10: size = 1807268; decompressMemory = 415024; return size;
-        case 11: size = 2331556; decompressMemory = 415024; return size;
-        case 12: size = 2331556; decompressMemory = 415024; return size;
-        case 13: size = 3380132; decompressMemory = 415024; return size;
-        case 14: size = 3004832; decompressMemory = 415024; return size;
-        case 15: size = 3004832; decompressMemory = 415024; return size;
-        case 16: size = 4697834; decompressMemory = 415024; return size;
-        case 17: size = 4697834; decompressMemory = 415024; return size;
-        case 18: size = 4697834; decompressMemory = 415024; return size;
-        case 19: size = 4697834; decompressMemory = 415024; return size;
-        case 20: size = 4697834; decompressMemory = 415024; return size;
-        case 21: size = 4697834; decompressMemory = 415024; return size;
-        case 22: size = 4697834; decompressMemory = 415024; return size;
-      }
-      decompressMemory = 0;
-      return size;
     }
 
     case kDeflate:
