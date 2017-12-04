@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
  */
 
 
@@ -958,12 +959,15 @@ static size_t HUF_readDTable (U16* DTable, const void* src, size_t srcSize)
     U32 weightTotal;
     U32 maxBits;
     const BYTE* ip = (const BYTE*) src;
-    size_t iSize = ip[0];
+    size_t iSize;
     size_t oSize;
     U32 n;
     U32 nextRankStart;
     void* ptr = DTable+1;
     HUF_DElt* const dt = (HUF_DElt*)ptr;
+
+    if (!srcSize) return (size_t)-FSE_ERROR_srcSize_wrong;
+    iSize = ip[0];
 
     FSE_STATIC_ASSERT(sizeof(HUF_DElt) == sizeof(U16));   /* if compilation fails here, assertion is false */
     //memset(huffWeight, 0, sizeof(huffWeight));   /* should not be necessary, but some analyzer complain ... */
@@ -1005,6 +1009,7 @@ static size_t HUF_readDTable (U16* DTable, const void* src, size_t srcSize)
         rankVal[huffWeight[n]]++;
         weightTotal += (1 << huffWeight[n]) >> 1;
     }
+    if (weightTotal == 0) return (size_t)-FSE_ERROR_corruptionDetected;
 
     /* get last non-null symbol weight (implied, total must be 2^n) */
     maxBits = FSE_highbit32(weightTotal) + 1;
@@ -1350,7 +1355,7 @@ static void   ZSTD_copy8(void* dst, const void* src) { memcpy(dst, src, 8); }
 
 #define COPY8(d,s)    { ZSTD_copy8(d,s); d+=8; s+=8; }
 
-static void ZSTD_wildcopy(void* dst, const void* src, size_t length)
+static void ZSTD_wildcopy(void* dst, const void* src, ptrdiff_t length)
 {
     const BYTE* ip = (const BYTE*)src;
     BYTE* op = (BYTE*)dst;
@@ -1428,7 +1433,7 @@ typedef struct ZSTD_Cctx_s
 #else
     U32 hashTable[HASH_TABLESIZE];
 #endif
-	BYTE buffer[WORKPLACESIZE];
+    BYTE buffer[WORKPLACESIZE];
 } cctxi_t;
 
 
@@ -1533,6 +1538,7 @@ size_t ZSTDv01_decodeLiteralsBlock(void* ctx,
         {
             size_t rleSize = litbp.origSize;
             if (rleSize>maxDstSize) return ERROR(dstSize_tooSmall);
+            if (!srcSize) return ERROR(srcSize_wrong);
             memset(oend - rleSize, *ip, rleSize);
             *litStart = oend - rleSize;
             *litSize = rleSize;
@@ -1798,7 +1804,7 @@ static size_t ZSTD_execSequence(BYTE* op,
         } else { ZSTD_copy8(op, match); }
         op += 8; match += 8;
 
-        if (endMatch > oend-12)
+        if (endMatch > oend-(16-MINMATCH))
         {
             if (op < oend-8)
             {
@@ -1809,7 +1815,7 @@ static size_t ZSTD_execSequence(BYTE* op,
             while (op<endMatch) *op++ = *match++;
         }
         else
-            ZSTD_wildcopy(op, match, sequence.matchLength-8);   /* works even if matchLength < 8 */
+            ZSTD_wildcopy(op, match, (ptrdiff_t)sequence.matchLength-8);   /* works even if matchLength < 8 */
 
         /* restore, in case of overlap */
         if (overlapRisk) memcpy(endMatch, saved, qutt);
@@ -1987,6 +1993,37 @@ size_t ZSTDv01_decompress(void* dst, size_t maxDstSize, const void* src, size_t 
     return ZSTDv01_decompressDCtx(&ctx, dst, maxDstSize, src, srcSize);
 }
 
+size_t ZSTDv01_findFrameCompressedSize(const void* src, size_t srcSize)
+{
+    const BYTE* ip = (const BYTE*)src;
+    size_t remainingSize = srcSize;
+    U32 magicNumber;
+    blockProperties_t blockProperties;
+
+    /* Frame Header */
+    if (srcSize < ZSTD_frameHeaderSize+ZSTD_blockHeaderSize) return ERROR(srcSize_wrong);
+    magicNumber = ZSTD_readBE32(src);
+    if (magicNumber != ZSTD_magicNumber) return ERROR(prefix_unknown);
+    ip += ZSTD_frameHeaderSize; remainingSize -= ZSTD_frameHeaderSize;
+
+    /* Loop on each block */
+    while (1)
+    {
+        size_t blockSize = ZSTDv01_getcBlockSize(ip, remainingSize, &blockProperties);
+        if (ZSTDv01_isError(blockSize)) return blockSize;
+
+        ip += ZSTD_blockHeaderSize;
+        remainingSize -= ZSTD_blockHeaderSize;
+        if (blockSize > remainingSize) return ERROR(srcSize_wrong);
+
+        if (blockSize == 0) break;   /* bt_end */
+
+        ip += blockSize;
+        remainingSize -= blockSize;
+    }
+
+    return ip - (const BYTE*)src;
+}
 
 /*******************************
 *  Streaming Decompression API

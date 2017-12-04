@@ -27,7 +27,13 @@ OBJS = \
   $(COMPRESS_OBJS) \
   $(CRYPTO_OBJS) \
   $(C_OBJS) \
+  $(BROTLI_OBJS) \
+  $(LIZARD_OBJS) \
+  $(LZ4_OBJS) \
+  $(LZ5_OBJS) \
+  $(RADYX_OBJS) \
   $(ZSTD_OBJS) \
+  $(ZSTDMT_OBJS) \
   $(ASM_OBJS) \
   $O\resource.res \
 
@@ -173,8 +179,38 @@ $(C_OBJS): ../../../../C/$(*B).c
 	$(COMPL_O2)
 !ENDIF
 
+!IFDEF BROTLI_OBJS
+$(BROTLI_OBJS): ../../../../C/brotli/$(*B).c
+	$(COMPL_O2)
+!ENDIF
+
+!IFDEF LIZARD_OBJS
+$(LIZARD_OBJS): ../../../../C/lizard/$(*B).c
+	$(COMPL_O2)
+!ENDIF
+
+!IFDEF LZ4_OBJS
+$(LZ4_OBJS): ../../../../C/lz4/$(*B).c
+	$(COMPL_O2)
+!ENDIF
+
+!IFDEF LZ5_OBJS
+$(LZ5_OBJS): ../../../../C/lz5/$(*B).c
+	$(COMPL_O2)
+!ENDIF
+
 !IFDEF ZSTD_OBJS
 $(ZSTD_OBJS): ../../../../C/zstd/$(*B).c
+	$(COMPL_O2)
+!ENDIF
+
+!IFDEF ZSTDMT_OBJS
+$(ZSTDMT_OBJS): ../../../../C/zstdmt/$(*B).c
+	$(COMPL_O2)
+!ENDIF
+
+!IFDEF RADYX_OBJS
+$(RADYX_OBJS): ../../../Radyx/$(*B).cpp
 	$(COMPL_O2)
 !ENDIF
 
@@ -238,10 +274,27 @@ $(ZSTD_OBJS): ../../../../C/zstd/$(*B).c
 	$(COMPLB_O2)
 {../../Crypto}.cpp{$O}.obj::
 	$(COMPLB_O2)
+{../../../Radyx}.cpp{$O}.obj::
+	$(COMPLB_O2)
 {../../../../C}.c{$O}.obj::
-	$(CCOMPLB)
+	$(COMPLB_O2)
+{../../../../C/brotli}.c{$O}.obj::
+	$(COMPLB_O2)
+{../../../../C/lizard}.c{$O}.obj::
+	$(COMPLB_O2)
+{../../../../C/lz4}.c{$O}.obj::
+	$(COMPLB_O2)
+{../../../../C/lz5}.c{$O}.obj::
+	$(COMPLB_O2)
 {../../../../C/zstd}.c{$O}.obj::
-	$(CCOMPLB)
+	$(COMPLB_O2)
+{../../../../C/zstdmt}.c{$O}.obj::
+	$(COMPLB_O2) \
+	-I ../../../../C/brotli \
+	-I ../../../../C/lizard \
+	-I ../../../../C/lz4 \
+	-I ../../../../C/lz5 \
+	-I ../../../../C/zstd
 
 !ENDIF
 

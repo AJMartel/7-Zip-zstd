@@ -65,7 +65,7 @@ static DWORD GetDllVersion(LPCTSTR dllName)
 
 bool g_LVN_ITEMACTIVATE_Support = true;
 
-static const wchar_t *kUnknownExceptionMessage = L"ERROR: Unknown Error!";
+static const wchar_t * const kUnknownExceptionMessage = L"ERROR: Unknown Error!";
 
 void ErrorMessageForHRESULT(HRESULT res)
 {
@@ -135,7 +135,13 @@ int APIENTRY WinMain2()
   }
 
   CCodecs *codecs = new CCodecs;
-  CMyComPtr<IUnknown> compressCodecsInfo = codecs;
+  CMyComPtr<
+    #ifdef EXTERNAL_CODECS
+    ICompressCodecsInfo
+    #else
+    IUnknown
+    #endif
+    > compressCodecsInfo = codecs;
   HRESULT result = codecs->Load();
   if (result != S_OK)
   {

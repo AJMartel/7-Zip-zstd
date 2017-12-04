@@ -22,6 +22,7 @@ COMMON_OBJS = \
   $O\UTFConvert.obj \
   $O\MyVector.obj \
   $O\Wildcard.obj \
+  $O\XzCrc64Init.obj \
   $O\XzCrc64Reg.obj \
   $O\Sha1Reg.obj \
   $O\Sha256Reg.obj \
@@ -38,6 +39,7 @@ WIN_OBJS = \
   $O\MemoryLock.obj \
   $O\PropVariant.obj \
   $O\PropVariantConv.obj \
+  $O\PropVariantUtils.obj \
   $O\Synchronization.obj \
   $O\System.obj \
   $O\TimeUtils.obj \
@@ -70,6 +72,7 @@ AR_OBJS = \
   $O\Bz2Handler.obj \
   $O\DeflateProps.obj \
   $O\GzHandler.obj \
+  $O\LzHandler.obj \
   $O\LzmaHandler.obj \
   $O\SplitHandler.obj \
   $O\XzHandler.obj \
@@ -151,7 +154,6 @@ COMPRESS_OBJS = \
   $O\DeflateRegister.obj \
   $O\DeltaFilter.obj \
   $O\ImplodeDecoder.obj \
-  $O\ImplodeHuffmanDecoder.obj \
   $O\Lzma2Decoder.obj \
   $O\Lzma2Encoder.obj \
   $O\Lzma2Register.obj \
@@ -166,6 +168,8 @@ COMPRESS_OBJS = \
   $O\PpmdZip.obj \
   $O\QuantumDecoder.obj \
   $O\ShrinkDecoder.obj \
+  $O\XzDecoder.obj \
+  $O\XzEncoder.obj \
   $O\ZDecoder.obj \
 
 CRYPTO_OBJS = \
@@ -213,6 +217,125 @@ C_OBJS = \
   $O\XzDec.obj \
   $O\XzEnc.obj \
   $O\XzIn.obj \
+
+COMPRESS_OBJS = $(COMPRESS_OBJS) \
+  $O\BrotliDecoder.obj \
+  $O\BrotliEncoder.obj \
+  $O\BrotliRegister.obj \
+  $O\Lz4Decoder.obj \
+  $O\Lz4Encoder.obj \
+  $O\Lz4Register.obj \
+  $O\LizardDecoder.obj \
+  $O\LizardEncoder.obj \
+  $O\LizardRegister.obj \
+  $O\Lz5Decoder.obj \
+  $O\Lz5Encoder.obj \
+  $O\Lz5Register.obj \
+  $O\RadyxEncoder.obj \
+  $O\RadyxRegister.obj \
+  $O\ZstdDecoder.obj \
+  $O\ZstdEncoder.obj \
+  $O\ZstdRegister.obj \
+
+BROTLI_OBJS = \
+  $O/br_dictionary.obj \
+  $O/br_bit_reader.obj \
+  $O/br_decode.obj \
+  $O/br_huffman.obj \
+  $O/br_state.obj \
+  $O/br_backward_references.obj \
+  $O/br_backward_references_hq.obj \
+  $O/br_bit_cost.obj \
+  $O/br_block_splitter.obj \
+  $O/br_brotli_bit_stream.obj \
+  $O/br_cluster.obj \
+  $O/br_compress_fragment.obj \
+  $O/br_compress_fragment_two_pass.obj \
+  $O/br_dictionary_hash.obj \
+  $O/br_encode.obj \
+  $O/br_entropy_encode.obj \
+  $O/br_histogram.obj \
+  $O/br_literal_cost.obj \
+  $O/br_memory.obj \
+  $O/br_metablock.obj \
+  $O/br_static_dict.obj \
+  $O/br_utf8_util.obj \
+
+LIZARD_OBJS = \
+  $O/lizard_compress.obj \
+  $O/lizard_decompress.obj \
+  $O/lizard_frame.obj \
+
+LZ4_OBJS = \
+  $O\lz4.obj \
+  $O\lz4frame.obj \
+  $O\lz4hc.obj \
+
+LZ5_OBJS = \
+  $O\lz5.obj \
+  $O\lz5frame.obj \
+  $O\lz5hc.obj \
+
+RADYX_OBJS = \
+  $O\Radyx_AsyncWriter.obj \
+  $O\Radyx_CoderInfo.obj \
+  $O\Radyx_CompressedUint64.obj \
+  $O\Radyx_Crc32.obj \
+  $O\Radyx_Lzma2Encoder.obj \
+  $O\Radyx_Lzma2Options.obj \
+  $O\Radyx_LzmaStates.obj \
+  $O\Radyx_MatchTable.obj \
+  $O\Radyx_MatchTableBuilder.obj \
+  $O\Radyx_OutStream7z.obj \
+  $O\Radyx_RadyxLzma2Enc.obj \
+  $O\Radyx_RangeEncoder.obj \
+  $O\Radyx_ThreadPool.obj \
+  $O\Radyx_UnitCompressor.obj \
+
+ZSTD_OBJS = \
+  $O\entropy_common.obj \
+  $O\error_private.obj \
+  $O\fse_compress.obj \
+  $O\fse_decompress.obj \
+  $O\huf_compress.obj \
+  $O\huf_decompress.obj \
+  $O\pool.obj \
+  $O\threading.obj \
+  $O\xxhash.obj \
+  $O\zstd_common.obj \
+  $O\zstd_compress.obj \
+  $O\zstd_decompress.obj \
+  $O\zstd_double_fast.obj \
+  $O\zstd_fast.obj \
+  $O\zstd_lazy.obj \
+  $O\zstd_ldm.obj \
+  $O\zstdmt_compress.obj \
+  $O\zstd_opt.obj \
+  $O\zstd_v01.obj \
+  $O\zstd_v02.obj \
+  $O\zstd_v03.obj \
+  $O\zstd_v04.obj \
+  $O\zstd_v05.obj \
+  $O\zstd_v06.obj \
+  $O\zstd_v07.obj \
+
+ZSTDMT_OBJS = \
+  $O\brotli-mt_common.obj \
+  $O\brotli-mt_compress.obj \
+  $O\brotli-mt_decompress.obj \
+  $O\lizard-mt_common.obj \
+  $O\lizard-mt_compress.obj \
+  $O\lizard-mt_decompress.obj \
+  $O\lz4-mt_common.obj \
+  $O\lz4-mt_compress.obj \
+  $O\lz4-mt_decompress.obj \
+  $O\lz5-mt_common.obj \
+  $O\lz5-mt_compress.obj \
+  $O\lz5-mt_decompress.obj \
+  $O\zstd-mt_common.obj \
+  $O\zstd-mt_compress.obj \
+  $O\zstd-mt_decompress.obj \
+  $O\zstd-mt_threading.obj \
 
 !include "../../UI/Console/Console.mak"
 

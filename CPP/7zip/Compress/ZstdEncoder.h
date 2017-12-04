@@ -1,9 +1,10 @@
-// ZstdEncoder.h
 // (C) 2016 Tino Reichardt
 
 #define ZSTD_STATIC_LINKING_ONLY
 #include "../../../C/Alloc.h"
-#include "../../../C/ZStd/zstd.h"
+#include "../../../C/Threads.h"
+#include "../../../C/zstd/zstd.h"
+#include "../../../C/zstdmt/zstd-mt.h"
 
 #include "../../Common/Common.h"
 #include "../../Common/MyCom.h"
@@ -33,27 +34,33 @@ struct CProps
 
 class CEncoder:
   public ICompressCoder,
+  public ICompressSetCoderMt,
   public ICompressSetCoderProperties,
   public ICompressWriteCoderProperties,
   public CMyUnknownImp
 {
   CProps _props;
 
-  ZSTD_CStream *_cstream;
-  void *_buffIn;
-  void *_buffOut;
-  size_t _buffInSize;
-  size_t _buffOutSize;
   UInt64 _processedIn;
   UInt64 _processedOut;
+  UInt32 _inputSize;
+  UInt32 _numThreads;
 
-  HRESULT CreateCompressor();
+  ZSTDCB_CCtx *_ctx;
+  HRESULT CEncoder::ErrorOut(size_t code);
 
 public:
-  MY_UNKNOWN_IMP2 (ICompressSetCoderProperties, ICompressWriteCoderProperties)
-  STDMETHOD (Code) (ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
-  STDMETHOD (SetCoderProperties) (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
-  STDMETHOD (WriteCoderProperties) (ISequentialOutStream *outStream);
+  MY_QUERYINTERFACE_BEGIN2(ICompressCoder)
+  MY_QUERYINTERFACE_ENTRY(ICompressSetCoderMt)
+  MY_QUERYINTERFACE_ENTRY(ICompressSetCoderProperties)
+  MY_QUERYINTERFACE_ENTRY(ICompressWriteCoderProperties)
+  MY_QUERYINTERFACE_END
+  MY_ADDREF_RELEASE
+
+  STDMETHOD (Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
+  STDMETHOD (SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
+  STDMETHOD (WriteCoderProperties)(ISequentialOutStream *outStream);
+  STDMETHOD (SetNumberOfThreads)(UInt32 numThreads);
 
   CEncoder();
   virtual ~CEncoder();

@@ -1,9 +1,9 @@
-7-Zip 16.02 Sources
--------------------
+7-Zip 17.00 beta Sources
+------------------------
 
 7-Zip is a file archiver for Windows. 
 
-7-Zip Copyright (C) 1999-2016 Igor Pavlov.
+7-Zip Copyright (C) 1999-2017 Igor Pavlov.
 
 
 License Info
@@ -123,7 +123,7 @@ Windows           common files for Windows related code
 
   Bundle          Modules that are bundles of other modules (files)
 
-    Alone         7za.exe: Standalone version of 7-Zip console that supports only 7z/xz/cab/zip/gzip/bzip2/tar.
+    Alone         7za.exe: Standalone version of 7-Zip console that supports only 7z/xz/cab/zip/gzip/bzip2/lzip/tar
     Alone7z       7zr.exe: Standalone version of 7-Zip console that supports only 7z (reduced version)
     Fm            Standalone version of 7-Zip File Manager
     Format7z            7za.dll:  .7z support

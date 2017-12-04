@@ -24,21 +24,21 @@ using namespace NWindows;
 using namespace NFile;
 using namespace NDir;
 
-static const wchar_t *g_Message_FileWriteError = L"File write error";
+static const char * const g_Message_FileWriteError = "File write error";
 
 struct CVolSeqName
 {
   UString UnchangedPart;
   UString ChangedPart;
-  CVolSeqName(): ChangedPart(L"000") {};
+  CVolSeqName(): ChangedPart("000") {};
 
   void SetNumDigits(UInt64 numVolumes)
   {
-    ChangedPart = L"000";
+    ChangedPart = "000";
     while (numVolumes > 999)
     {
       numVolumes /= 10;
-      ChangedPart += L'0';
+      ChangedPart += '0';
     }
   }
 
@@ -131,7 +131,7 @@ HRESULT CThreadSplit::ProcessVirt()
     if (curVolSize == 0)
     {
       FString name = VolBasePath;
-      name += FTEXT('.');
+      name += '.';
       name += us2fs(seqName.GetNextName());
       sync.Set_FilePath(fs2us(name));
       sync.Set_NumFilesCur(numFiles++);
@@ -167,7 +167,7 @@ void CApp::Split()
   CPanel &srcPanel = Panels[srcPanelIndex];
   if (!srcPanel.Is_IO_FS_Folder())
   {
-    srcPanel.MessageBoxErrorLang(IDS_OPERATION_IS_NOT_SUPPORTED);
+    srcPanel.MessageBox_Error_UnsupportOperation();
     return;
   }
   CRecordVector<UInt32> indices;
@@ -176,13 +176,13 @@ void CApp::Split()
     return;
   if (indices.Size() != 1)
   {
-    srcPanel.MessageBoxErrorLang(IDS_SELECT_ONE_FILE);
+    srcPanel.MessageBox_Error_LangID(IDS_SELECT_ONE_FILE);
     return;
   }
   int index = indices[0];
   if (srcPanel.IsItem_Folder(index))
   {
-    srcPanel.MessageBoxErrorLang(IDS_SELECT_ONE_FILE);
+    srcPanel.MessageBox_Error_LangID(IDS_SELECT_ONE_FILE);
     return;
   }
   const UString itemName = srcPanel.GetItemName(index);
@@ -203,12 +203,12 @@ void CApp::Split()
   NFind::CFileInfo fileInfo;
   if (!fileInfo.Find(us2fs(srcPath + itemName)))
   {
-    srcPanel.MessageBoxMyError(L"Can not find file");
+    srcPanel.MessageBox_Error(L"Can not find file");
     return;
   }
   if (fileInfo.Size <= splitDialog.VolumeSizes.Front())
   {
-    srcPanel.MessageBoxErrorLang(IDS_SPLIT_VOL_MUST_BE_SMALLER);
+    srcPanel.MessageBox_Error_LangID(IDS_SPLIT_VOL_MUST_BE_SMALLER);
     return;
   }
   const UInt64 numVolumes = GetNumberOfVolumes(fileInfo.Size, splitDialog.VolumeSizes);
@@ -226,7 +226,8 @@ void CApp::Split()
   NName::NormalizeDirPathPrefix(path);
   if (!CreateComplexDir(us2fs(path)))
   {
-    srcPanel.MessageBoxError2Lines(MyFormatNew(IDS_CANNOT_CREATE_FOLDER, path), ::GetLastError());
+    DWORD lastError = ::GetLastError();
+    srcPanel.MessageBox_Error_2Lines_Message_HRESULT(MyFormatNew(IDS_CANNOT_CREATE_FOLDER, path), lastError);
     return;
   }
 
@@ -236,7 +237,7 @@ void CApp::Split()
 
   CProgressDialog &progressDialog = spliter.ProgressDialog;
 
-  UString progressWindowTitle = L"7-Zip"; // LangString(IDS_APP_TITLE, 0x03000000);
+  UString progressWindowTitle ("7-Zip"); // LangString(IDS_APP_TITLE, 0x03000000);
   UString title = LangString(IDS_SPLITTING);
 
   progressDialog.ShowCompressionInfo = false;
@@ -340,7 +341,7 @@ extern void AddValuePair2(UString &s, UINT resourceID, UInt64 num, UInt64 size);
 
 static void AddInfoFileName(UString &dest, const UString &name)
 {
-  dest += L"\n  ";
+  dest += "\n  ";
   dest += name;
 }
 
@@ -350,7 +351,7 @@ void CApp::Combine()
   CPanel &srcPanel = Panels[srcPanelIndex];
   if (!srcPanel.IsFSFolder())
   {
-    srcPanel.MessageBoxErrorLang(IDS_OPERATION_IS_NOT_SUPPORTED);
+    srcPanel.MessageBox_Error_LangID(IDS_OPERATION_IS_NOT_SUPPORTED);
     return;
   }
   CRecordVector<UInt32> indices;
@@ -360,7 +361,7 @@ void CApp::Combine()
   int index = indices[0];
   if (indices.Size() != 1 || srcPanel.IsItem_Folder(index))
   {
-    srcPanel.MessageBoxErrorLang(IDS_COMBINE_SELECT_ONE_FILE);
+    srcPanel.MessageBox_Error_LangID(IDS_COMBINE_SELECT_ONE_FILE);
     return;
   }
   const UString itemName = srcPanel.GetItemName(index);
@@ -376,7 +377,7 @@ void CApp::Combine()
   CVolSeqName volSeqName;
   if (!volSeqName.ParseName(itemName))
   {
-    srcPanel.MessageBoxErrorLang(IDS_COMBINE_CANT_DETECT_SPLIT_FILE);
+    srcPanel.MessageBox_Error_LangID(IDS_COMBINE_CANT_DETECT_SPLIT_FILE);
     return;
   }
   
@@ -396,13 +397,13 @@ void CApp::Combine()
   }
   if (combiner.Names.Size() == 1)
   {
-    srcPanel.MessageBoxErrorLang(IDS_COMBINE_CANT_FIND_MORE_THAN_ONE_PART);
+    srcPanel.MessageBox_Error_LangID(IDS_COMBINE_CANT_FIND_MORE_THAN_ONE_PART);
     return;
   }
   
   if (combiner.TotalSize == 0)
   {
-    srcPanel.MessageBoxMyError(L"No data");
+    srcPanel.MessageBox_Error(L"No data");
     return;
   }
   
@@ -438,7 +439,8 @@ void CApp::Combine()
   NName::NormalizeDirPathPrefix(path);
   if (!CreateComplexDir(us2fs(path)))
   {
-    srcPanel.MessageBoxError2Lines(MyFormatNew(IDS_CANNOT_CREATE_FOLDER, path), ::GetLastError());
+    DWORD lastError = ::GetLastError();
+    srcPanel.MessageBox_Error_2Lines_Message_HRESULT(MyFormatNew(IDS_CANNOT_CREATE_FOLDER, path), lastError);
     return;
   }
   
@@ -450,21 +452,21 @@ void CApp::Combine()
     outName.DeleteBack();
   }
   if (outName.IsEmpty())
-    outName = L"file";
+    outName = "file";
   
   NFind::CFileInfo fileInfo;
   UString destFilePath = path + outName;
   combiner.OutputPath = us2fs(destFilePath);
   if (fileInfo.Find(combiner.OutputPath))
   {
-    srcPanel.MessageBoxMyError(MyFormatNew(IDS_FILE_EXIST, destFilePath));
+    srcPanel.MessageBox_Error(MyFormatNew(IDS_FILE_EXIST, destFilePath));
     return;
   }
   
     CProgressDialog &progressDialog = combiner.ProgressDialog;
     progressDialog.ShowCompressionInfo = false;
   
-    UString progressWindowTitle = L"7-Zip"; // LangString(IDS_APP_TITLE, 0x03000000);
+    UString progressWindowTitle ("7-Zip"); // LangString(IDS_APP_TITLE, 0x03000000);
     UString title = LangString(IDS_COMBINING);
     
     progressDialog.MainWindow = _window;
